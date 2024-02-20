@@ -62,12 +62,20 @@ def create_tf_example(group, path):
         labels = [line.strip() for line in f.readlines()]
 
     for index, row in group.object.iterrows():
-        xmins.append(row['xmin'] / width)
-        xmaxs.append(row['xmax'] / width)
-        ymins.append(row['ymin'] / height)
-        ymaxs.append(row['ymax'] / height)
-        classes_text.append(row['class'].encode('utf8'))
-        classes.append(int(labels.index(row['class'])+1))
+        if int(row['xmin']) > -1:
+            xmins.append(row['xmin'] / width)
+            xmaxs.append(row['xmax'] / width)
+            ymins.append(row['ymin'] / height)
+            ymaxs.append(row['ymax'] / height)
+            classes_text.append(row['class'].encode('utf8'))
+            classes.append(int(labels.index(row['class'])+1))
+        else:
+            xmins.append(0)
+            xmaxs.append(0)
+            ymins.append(0)
+            ymaxs.append(0)
+            classes_text.append('something'.encode('utf8'))  # this doe not matter for the background
+            classes.append(5000)
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
